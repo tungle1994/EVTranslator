@@ -8,15 +8,51 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import opennlp.tools.cmdline.postag.POSModelLoader;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.postag.POSDictionary;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
+
+
+public class MainActivity extends AppCompatActivity  {
+
+    public static InputStream file_en_token;
+    public static InputStream file_en_ner_person;
+    public static InputStream file_en_pos_maxent;
+    private TextView sent;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        sent = (TextView)findViewById(R.id.sentence);
+
+        // init
+        file_en_token = getResources().openRawResource(R.raw.entoken);
+        file_en_ner_person = getResources().openRawResource(R.raw.ennerperson);
+        file_en_pos_maxent = getResources().openRawResource(R.raw.enposmaxent);
+
+        String []tokens = getTokenizer("Cat is a student");
+
+        Span[] spans = findName(tokens);
+        int a = 10;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -48,5 +84,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public String[] getTokenizer(String sent) {
+        try {
+            String tokens[];
+            TokenizerModel model = new TokenizerModel(MainActivity.file_en_token);
+            Tokenizer tokenizer = new TokenizerME(model);
+            tokens = tokenizer.tokenize(sent);
+            return tokens;
+        } catch (Exception e) {
+            //log the exception
+        }
+        return null;
+    }
+
+    public Span[]  findName(String[] sent) {
+        try {
+        TokenNameFinderModel model = new TokenNameFinderModel(file_en_ner_person);
+        NameFinderME nameFinder = new NameFinderME(model);
+        Span nameSpans[] = nameFinder.find(sent);
+
+        for(Span s: nameSpans){
+            Toast.makeText(getApplicationContext(),s.toString(),Toast.LENGTH_LONG).show();
+        }
+            //System.out.println();
+        return nameSpans;
+        } catch (Exception e) {
+            //log the exception
+        }
+        return null;
+    }
+
+
+    public  void POSTag(){
+
     }
 }
