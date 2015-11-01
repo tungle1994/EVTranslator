@@ -1,5 +1,6 @@
 package com.example.qldapm.evtranslator.yeuThich;
 
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,16 +15,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qldapm.evtranslator.Dialogue.ThemmoiFolder;
 import com.example.qldapm.evtranslator.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class favorite extends AppCompatActivity {
 
-    Button timKiem;
-    EditText khungNhap;
+
     ListView hienthifavorite;
+    MyArrayAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,39 +39,19 @@ public class favorite extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                DialogFragment add = new ThemmoiFolder();
+                add.show(getFragmentManager(),"ThemmoiFolder");
             }
         });
-
-        timKiem = (Button)findViewById(R.id.btn_timkiem);
-        khungNhap = (EditText)findViewById(R.id.txt_Onhap);
         hienthifavorite = (ListView)findViewById(R.id.liv_danhsach);
-        timKiem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(),"hi click",Toast.LENGTH_LONG);
-            }
-        });
-        List<Favorite_Object>list = new ArrayList<Favorite_Object>();
-        Favorite_Object temp = new Favorite_Object();
-        temp.setNoiDung("Hi, there are 4 many people in my family");
-        temp.setNgaySave("29/10/2015");
-        list.add(temp);
-        temp = new Favorite_Object();
-        temp.setNoiDung("Hi, there are 4 many people in my family. my name ty");
-        temp.setNgaySave("29/10/2015");
-        list.add(temp);
         hienthifavorite.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String hello;
-                hello = "haha";
+                Toast.makeText(getApplication(), "On item click", Toast.LENGTH_LONG).show();
+                //On click
             }
         });
-        MyArrayAdapter adapter = new MyArrayAdapter(this,R.layout.listlayour,list);
+        adapter = new MyArrayAdapter(this,R.layout.listlayour,Managerfavorite.getIntands().ListFolder);
         hienthifavorite.setAdapter(adapter);
-
     }
-
 }

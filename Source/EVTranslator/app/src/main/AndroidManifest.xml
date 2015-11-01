@@ -30,6 +30,11 @@
             android:label="@string/title_activity_translate2"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".yeuThich.folder"
+            android:label="@string/title_activity_folder"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>
