@@ -1,5 +1,6 @@
 package com.example.qldapm.evtranslator;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,18 +13,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
+import opennlp.tools.cmdline.PerformanceMonitor;
+import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.cmdline.postag.POSModelLoader;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.parser.Parse;
+import opennlp.tools.parser.Parser;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSSample;
+import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.postag.POSDictionary;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 
 
@@ -32,6 +48,8 @@ public class MainActivity extends AppCompatActivity  {
     public static InputStream file_en_token;
     public static InputStream file_en_ner_person;
     public static InputStream file_en_pos_maxent;
+    public static File fileenposmaxent;
+    public static InputStream file_enparser_chunking;
     private TextView sent;
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -47,21 +65,10 @@ public class MainActivity extends AppCompatActivity  {
         // init
         file_en_token = getResources().openRawResource(R.raw.entoken);
         file_en_ner_person = getResources().openRawResource(R.raw.ennerperson);
-        file_en_pos_maxent = getResources().openRawResource(R.raw.enposmaxent);
-
-        String []tokens = getTokenizer("Cat is a student");
-
-        Span[] spans = findName(tokens);
-        int a = 10;
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        file_en_pos_maxent = getResources().openRawResource(R.raw.en_pos_maxent);
+       // file_enparser_chunking = getResources().openRawResource(R.raw.enparserchunking);
+        //fileenposmaxent = new File(getApplication().getFilesDir(),"abcdefh.zip");
+        sent.setText(POSTag());
     }
 
     @Override
@@ -86,7 +93,6 @@ public class MainActivity extends AppCompatActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-
     public String[] getTokenizer(String sent) {
         try {
             String tokens[];
@@ -100,25 +106,59 @@ public class MainActivity extends AppCompatActivity  {
         return null;
     }
 
-    public Span[]  findName(String[] sent) {
-        try {
-        TokenNameFinderModel model = new TokenNameFinderModel(file_en_ner_person);
-        NameFinderME nameFinder = new NameFinderME(model);
-        Span nameSpans[] = nameFinder.find(sent);
 
-        for(Span s: nameSpans){
-            Toast.makeText(getApplicationContext(),s.toString(),Toast.LENGTH_LONG).show();
+    public String POSTag(){
+        String str = "";
+        try{
+            POSModel model = new POSModel(file_en_pos_maxent);
+            int a = 10;
+            PerformanceMonitor perfMon = new PerformanceMonitor(System.err, "sent");
+            POSTaggerME tagger = new POSTaggerME(model);
+            String input = "I can can a can";
+            ObjectStream<String> lineStream = new PlainTextByLineStream(
+                    new StringReader(input));
+            perfMon.start();
+            String line;
+
+            while ((line = lineStream.read()) != null) {
+
+                String whitespaceTokenizerLine[] = WhitespaceTokenizer.INSTANCE
+                        .tokenize(line);
+                String[] tags = tagger.tag(whitespaceTokenizerLine);
+
+                POSSample sample = new POSSample(whitespaceTokenizerLine, tags);
+                str += sample.toString();
+                //Toast.makeText(getApplication(), sample.toString(), Toast.LENGTH_LONG).show();
+                //System.out.println(sample.toString());
+
+                perfMon.incrementCounter();
+            }
+            perfMon.stopAndPrintFinalResult();
+        }catch (Exception ex){
+
         }
-            //System.out.println();
-        return nameSpans;
-        } catch (Exception e) {
-            //log the exception
-        }
-        return null;
+return str;
     }
+    public  void Parse() {
+        // http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Parser#Training_Tool
+        try{
 
+            ParserModel model = new ParserModel(file_enparser_chunking);
 
-    public  void POSTag(){
+            Parser parser = ParserFactory.create(model);
 
+            String sentence = "Programcreek is a very huge and useful website.";
+            Parse topParses[] = ParserTool.parseLine(sentence, parser, 1);
+
+            for (Parse p : topParses)
+                p.show();
+
+        }catch (Exception exc){
+            int a = 10;
+        }
+	/*
+	 * (TOP (S (NP (NN Programcreek) ) (VP (VBZ is) (NP (DT a) (ADJP (RB
+	 * very) (JJ huge) (CC and) (JJ useful) ) ) ) (. website.) ) )
+	 */
     }
 }
