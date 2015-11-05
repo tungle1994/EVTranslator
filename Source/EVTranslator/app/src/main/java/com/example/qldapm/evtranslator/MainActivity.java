@@ -1,6 +1,10 @@
 package com.example.qldapm.evtranslator;
 
+
 import android.content.Context;
+
+import android.content.Intent;
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,12 +17,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import com.example.qldapm.evtranslator.yeuThich.Allclass.Folder_class;
+import com.example.qldapm.evtranslator.yeuThich.Managerfavorite;
+import com.example.qldapm.evtranslator.yeuThich.Allclass.absFile;
+import com.example.qldapm.evtranslator.yeuThich.folder;
+
+
 import java.io.InputStream;
 import java.io.StringReader;
+
 
 import opennlp.tools.cmdline.PerformanceMonitor;
 import opennlp.tools.cmdline.parser.ParserTool;
@@ -32,14 +45,19 @@ import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSSample;
 import opennlp.tools.postag.POSTaggerME;
+
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
+
 import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.postag.POSDictionary;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+
 import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+
 import opennlp.tools.util.Span;
 
 
@@ -48,7 +66,6 @@ public class MainActivity extends AppCompatActivity  {
     public static InputStream file_en_token;
     public static InputStream file_en_ner_person;
     public static InputStream file_en_pos_maxent;
-    public static File fileenposmaxent;
     public static InputStream file_enparser_chunking;
     private TextView sent;
     @Override
@@ -66,9 +83,23 @@ public class MainActivity extends AppCompatActivity  {
         file_en_token = getResources().openRawResource(R.raw.entoken);
         file_en_ner_person = getResources().openRawResource(R.raw.ennerperson);
         file_en_pos_maxent = getResources().openRawResource(R.raw.en_pos_maxent);
-       // file_enparser_chunking = getResources().openRawResource(R.raw.enparserchunking);
-        //fileenposmaxent = new File(getApplication().getFilesDir(),"abcdefh.zip");
         sent.setText(POSTag());
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+        absFile temp = new Folder_class();
+        temp.set_name("Hello");
+        temp.setNgaySave("29/10/1994");
+        Managerfavorite.getIntands().addChild(temp);
+        Intent intent = new Intent(this,folder.class);
+        startActivity(intent);
+
     }
 
     @Override
