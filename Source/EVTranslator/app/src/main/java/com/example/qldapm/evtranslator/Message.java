@@ -7,16 +7,6 @@ import android.graphics.drawable.Drawable;
  */
 public class Message
 {
-    private String m_Name;
-    public void setName(String Name)
-    {
-        m_Name = Name;
-    }
-    public String getName()
-    {
-        return m_Name;
-    }
-
     private String m_PhoneNumner;
     public void setPhoneNumner(String PhoneNumner)
     {

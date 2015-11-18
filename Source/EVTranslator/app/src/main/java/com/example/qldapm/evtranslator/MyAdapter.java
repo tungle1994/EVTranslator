@@ -39,10 +39,10 @@ public class MyAdapter extends ArrayAdapter<Message>
         Message infor = m_message.get(position);
         if(infor != null)
         {
-            TextView tvName = (TextView) v.findViewById(R.id.textViewName);
-            tvName.setText(infor.getName());
             TextView tvPhoneNumber = (TextView) v.findViewById(R.id.textViewPhoneNumber);
             tvPhoneNumber.setText(infor.getPhoneNumner());
+            TextView tvText = (TextView) v.findViewById(R.id.textViewText);
+            tvText.setText(infor.getText());
             ImageView image = (ImageView) v.findViewById(R.id.Image);
             image.setImageDrawable(infor.getImage());
         }

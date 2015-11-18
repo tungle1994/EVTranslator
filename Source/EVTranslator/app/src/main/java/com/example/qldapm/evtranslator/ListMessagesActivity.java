@@ -1,57 +1,79 @@
 package com.example.qldapm.evtranslator;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-/**
- * Created by Tùng Lê on 12-Nov-15.
- */
 public class ListMessagesActivity extends AppCompatActivity {
 
     ArrayList<Message> m_ListMessage;
     MyAdapter m_Adapter;
-    ListView lv;
-    private String[][] m_Message = {{"Name", "0989897873"}, {"Name", "0967995843"}, {"Name", "0907955843"}, {"Name", "0967885811"}, {"Name", "0988885231"}};
-    private int[] m_Image = {R.drawable.image_message, R.drawable.image_message, R.drawable.image_message, R.drawable.image_message, R.drawable.image_message};
+    ListView m_lv;
+    String m_text = ""; // Nội dung tin nhắn cần dịch
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         m_ListMessage = new ArrayList<Message>();
-        for(int i = 0; i < m_Message.length; i++)
+
+        Uri uri = Uri.parse("content://sms/inbox");
+        Cursor c = getContentResolver().query(uri, null, null ,null,null);
+        startManagingCursor(c);
+
+        // Đọc tin nhắn từ máy
+        if(c.moveToFirst())
         {
-            Message message = new Message();
-            message.setName(m_Message[i][0]);
-            message.setPhoneNumner(m_Message[i][1]);
-            message.setImage(getResources().getDrawable(m_Image[i]));
-            m_ListMessage.add(message);
+            for(int i=0; i < c.getCount(); i++)
+            {
+                Message message = new Message();
+                message.setText(c.getString(c.getColumnIndexOrThrow("body")).toString());
+                message.setPhoneNumner(c.getString(c.getColumnIndexOrThrow("address")).toString());
+                message.setImage(getResources().getDrawable(R.drawable.image_message));
+                m_ListMessage.add(message);
+                c.moveToNext();
+            }
         }
+        c.close();
+
+        // Hiển thị tin nhắn lên listview
         m_Adapter = new MyAdapter(this, R.layout.list_message_layout, m_ListMessage);
-        lv = (ListView)findViewById(R.id.listView_listMessage);
-        lv.setAdapter(m_Adapter);
+        m_lv = (ListView)findViewById(R.id.listView_listMessage);
+        m_lv.setAdapter(m_Adapter);
 
         final TextView txt1 =(TextView) findViewById(R.id.textView_message);
-        lv.setOnItemClickListener
+        m_lv.setOnItemClickListener
                 (
                         new AdapterView.OnItemClickListener() {
                             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                                txt1.setText("Message: " + m_Message[arg2][0]);
+                                m_text = m_ListMessage.get(arg2).getText();
+                                txt1.setText("Message: " + m_text);
                             }
                         }
                 );
+
+        // Sự kiện dịch tin nhắn
+        Button button = (Button) findViewById(R.id.button_translate);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Toast toast = Toast.makeText(getApplicationContext(), m_text, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
     }
 
     @Override
@@ -76,4 +98,3 @@ public class ListMessagesActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-
